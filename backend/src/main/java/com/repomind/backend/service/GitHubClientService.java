@@ -6,7 +6,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -34,7 +37,8 @@ public class GitHubClientService {
                     }
                 })
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<GitHubContentResponse>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<GitHubContentResponse>>() {})
+                .retryWhen(getRetrySpec());
     }
     
     public Mono<String> fetchRawFileContent(String downloadUrl) {
@@ -44,6 +48,15 @@ public class GitHubClientService {
         return WebClient.create().get()
                 .uri(downloadUrl)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .retryWhen(getRetrySpec());
+    }
+
+    private Retry getRetrySpec() {
+        return Retry.backoff(3, Duration.ofSeconds(2))
+                .filter(throwable -> throwable instanceof WebClientResponseException ex
+                    && (ex.getStatusCode().value() == 403 || ex.getStatusCode().value() == 429))
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> 
+                    new RuntimeException("GitHub API rate limit exhausted after " + retrySignal.totalRetries() + " retries"));
     }
 }
