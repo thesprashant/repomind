@@ -10,3 +10,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-placeholder}
