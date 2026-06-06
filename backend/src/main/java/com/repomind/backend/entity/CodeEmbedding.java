@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import com.pgvector.PGvector;
 
 import java.util.UUID;
 
@@ -29,8 +28,9 @@ public class CodeEmbedding {
     @Column(name = "raw_content", nullable = false, columnDefinition = "TEXT")
     private String rawContent;
 
-    @Column(name = "embedding", columnDefinition = "vector(1536)")
-    private PGvector embedding;
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Column(name = "embedding", columnDefinition = "vector(384)")
+    private float[] embedding;
 
     public CodeEmbedding() {
     }
@@ -67,11 +67,11 @@ public class CodeEmbedding {
         this.rawContent = rawContent;
     }
 
-    public PGvector getEmbedding() {
+    public float[] getEmbedding() {
         return embedding;
     }
 
-    public void setEmbedding(PGvector embedding) {
+    public void setEmbedding(float[] embedding) {
         this.embedding = embedding;
     }
 }

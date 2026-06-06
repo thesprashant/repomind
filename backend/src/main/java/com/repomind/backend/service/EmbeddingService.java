@@ -1,6 +1,5 @@
 package com.repomind.backend.service;
 
-import com.pgvector.PGvector;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +14,12 @@ public class EmbeddingService {
         this.embeddingModel = embeddingModel;
     }
 
-    public PGvector generateEmbedding(String text) {
+    public float[] generateEmbedding(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;
         }
         
-        // Call OpenAI API to generate a 1536-dimensional embedding
-        List<Double> embeddingList = embeddingModel.embed(text);
-        
-        // Convert List<Double> to float[] for the PGvector wrapper
-        float[] floatArray = new float[embeddingList.size()];
-        for (int i = 0; i < embeddingList.size(); i++) {
-            floatArray[i] = embeddingList.get(i).floatValue();
-        }
-        
-        return new PGvector(floatArray);
+        // Call the local ONNX transformer model to generate a 384-dimensional embedding
+        return embeddingModel.embed(text);
     }
 }

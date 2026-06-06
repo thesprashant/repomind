@@ -11,6 +11,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY:sk-placeholder}
+  # We are using local ONNX Transformers, so no API keys are required!
+
+  sql:
+    init:
+      mode: always
