@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Search from './pages/Search';
 
 function App() {
   return (
@@ -14,14 +15,7 @@ function App() {
         
         <main className="flex-grow pt-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
           <Routes>
-            <Route path="/" element={
-              <div className="text-center mt-20 fade-in">
-                <h1 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
-                  Search your codebase <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">intelligently</span>
-                </h1>
-                <p className="text-slate-400 text-xl max-w-2xl mx-auto">Semantic Search UI will be built here on Day 9.</p>
-              </div>
-            } />
+            <Route path="/" element={<Search />} />
             <Route path="/ingest" element={
               <div className="text-center mt-20 fade-in">
                 <h1 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
