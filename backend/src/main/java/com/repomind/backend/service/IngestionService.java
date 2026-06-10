@@ -1,5 +1,6 @@
 package com.repomind.backend.service;
 
+import com.repomind.backend.dto.JobStatus;
 import com.repomind.backend.entity.CodeEmbedding;
 import com.repomind.backend.repository.CodeEmbeddingRepository;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class IngestionService {
@@ -18,6 +20,8 @@ public class IngestionService {
     private final GitHubClientService gitHubClientService;
     private final EmbeddingService embeddingService;
     private final CodeEmbeddingRepository repository;
+    
+    private final ConcurrentHashMap<String, JobStatus> jobStatuses = new ConcurrentHashMap<>();
 
     public IngestionService(GitHubClientService gitHubClientService, 
                             EmbeddingService embeddingService, 
@@ -27,19 +31,41 @@ public class IngestionService {
         this.repository = repository;
     }
 
-    public void startIngestion(String owner, String repo) {
+    public JobStatus getJobStatus(String jobId) {
+        return jobStatuses.getOrDefault(jobId, new JobStatus("NOT_FOUND", 0, 0));
+    }
+
+    public void startIngestion(String owner, String repo, String jobId) {
+        jobStatuses.put(jobId, new JobStatus("INITIALIZING", 0, 0));
+        
         CompletableFuture.runAsync(() -> {
-            log.info("Starting background ingestion for {}/{}", owner, repo);
+            log.info("Starting background ingestion for {}/{} with Job ID: {}", owner, repo, jobId);
             
-            gitHubClientService.getRepositoryContents(owner, repo, "")
-                .blockOptional()
-                .ifPresent(contents -> {
-                    contents.stream()
-                        .filter(c -> "file".equals(c.type()) && (c.name().endsWith(".md") || c.name().endsWith(".txt"))) 
-                        .forEach(file -> processFile(owner, repo, file.path(), file.downloadUrl()));
-                });
-                
-            log.info("Ingestion completed for {}/{}", owner, repo);
+            try {
+                gitHubClientService.getRepositoryContents(owner, repo, "")
+                    .blockOptional()
+                    .ifPresent(contents -> {
+                        var filesToProcess = contents.stream()
+                            .filter(c -> "file".equals(c.type()) && (c.name().endsWith(".md") || c.name().endsWith(".txt")))
+                            .toList();
+                            
+                        int total = filesToProcess.size();
+                        jobStatuses.put(jobId, new JobStatus("IN_PROGRESS", total, 0));
+                        
+                        int processed = 0;
+                        for (var file : filesToProcess) {
+                            processFile(owner, repo, file.path(), file.downloadUrl());
+                            processed++;
+                            jobStatuses.put(jobId, new JobStatus("IN_PROGRESS", total, processed));
+                        }
+                    });
+                    
+                jobStatuses.put(jobId, new JobStatus("COMPLETED", jobStatuses.get(jobId).totalFiles(), jobStatuses.get(jobId).processedFiles()));
+                log.info("Ingestion completed for {}/{}", owner, repo);
+            } catch (Exception e) {
+                log.error("Job {} failed: {}", jobId, e.getMessage());
+                jobStatuses.put(jobId, new JobStatus("FAILED", 0, 0));
+            }
         });
     }
 

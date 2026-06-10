@@ -12,6 +12,9 @@ import reactor.util.retry.Retry;
 import java.time.Duration;
 import java.util.List;
 
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import reactor.netty.http.client.HttpClient;
+
 @Service
 public class GitHubClientService {
 
@@ -21,7 +24,11 @@ public class GitHubClientService {
     private String githubApiToken;
 
     public GitHubClientService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://api.github.com").build();
+        HttpClient httpClient = HttpClient.create().followRedirect(true);
+        this.webClient = webClientBuilder
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl("https://api.github.com")
+                .build();
     }
 
     public Mono<List<GitHubContentResponse>> getRepositoryContents(String owner, String repo, String path) {

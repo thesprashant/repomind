@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Search from './pages/Search';
+import Ingest from './pages/Ingest';
 
 function App() {
   return (
@@ -16,14 +17,7 @@ function App() {
         <main className="flex-grow pt-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
           <Routes>
             <Route path="/" element={<Search />} />
-            <Route path="/ingest" element={
-              <div className="text-center mt-20 fade-in">
-                <h1 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
-                  Ingest a Repository
-                </h1>
-                <p className="text-slate-400 text-xl max-w-2xl mx-auto">Ingestion UI will be built here on Day 10.</p>
-              </div>
-            } />
+            <Route path="/ingest" element={<Ingest />} />
           </Routes>
         </main>
       </div>
