@@ -11,7 +11,7 @@ public class GitHubClientServiceManualTest {
     @Test
     public void testFetchFromGitHub() {
         // Instantiate the service manually without booting the whole Spring Context
-        GitHubClientService service = new GitHubClientService(WebClient.builder());
+        GitHubClientService service = new GitHubClientService(WebClient.builder(), "https://api.github.com");
         
         System.out.println("Fetching repository contents for 'spring-projects/spring-boot'...");
         

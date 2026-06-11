@@ -23,11 +23,12 @@ public class GitHubClientService {
     @Value("${github.api.token:}")
     private String githubApiToken;
 
-    public GitHubClientService(WebClient.Builder webClientBuilder) {
+    public GitHubClientService(WebClient.Builder webClientBuilder, 
+                               @Value("${github.api.url:https://api.github.com}") String githubApiUrl) {
         HttpClient httpClient = HttpClient.create().followRedirect(true);
         this.webClient = webClientBuilder
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl("https://api.github.com")
+                .baseUrl(githubApiUrl)
                 .build();
     }
 
