@@ -24,4 +24,9 @@ public class SearchController {
         var results = searchService.semanticSearch(request.query(), request.repo(), limit);
         return ResponseEntity.ok(results);
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Backend is ALIVE and AWS CI/CD Watchtower deployment was a SUCCESS!");
+    }
 }
