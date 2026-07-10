@@ -31,7 +31,9 @@ jobs:
           cache: maven
 
       - name: Build and test with Maven
-        run: ./mvnw clean verify
+        run: |
+          chmod +x mvnw
+          ./mvnw clean verify
 
   deploy:
     # Only deploy on pushes to main, not pull requests
