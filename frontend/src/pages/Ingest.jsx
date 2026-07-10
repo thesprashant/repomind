@@ -22,7 +22,10 @@ const Ingest = () => {
       const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
       const response = await fetch(`${API_BASE}/api/repomind/ingest`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({ owner, repo }),
       });
 
@@ -48,7 +51,11 @@ const Ingest = () => {
       intervalId = setInterval(async () => {
         try {
           const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
-          const res = await fetch(`${API_BASE}/api/repomind/ingest/status/${success.jobId}`);
+          const res = await fetch(`${API_BASE}/api/repomind/ingest/status/${success.jobId}`, {
+            headers: {
+              'ngrok-skip-browser-warning': 'true'
+            }
+          });
           if (res.ok) {
             const data = await res.json();
             setJobStatus(data);
