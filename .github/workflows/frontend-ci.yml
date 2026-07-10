@@ -1,0 +1,37 @@
+name: Frontend CI (React / Vite)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vite App
+        run: npm run build
+        
+      # Note: Continuous Deployment (CD) to Vercel is handled natively 
+      # by linking this GitHub repository directly in the Vercel Dashboard.
+      # Vercel will automatically detect pushes to 'main' and deploy them!

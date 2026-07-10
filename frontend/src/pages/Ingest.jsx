@@ -19,7 +19,8 @@ const Ingest = () => {
     setJobStatus(null);
 
     try {
-      const response = await fetch('/api/repomind/ingest', {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${API_BASE}/api/repomind/ingest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ owner, repo }),
@@ -46,7 +47,8 @@ const Ingest = () => {
     if (success && success.jobId) {
       intervalId = setInterval(async () => {
         try {
-          const res = await fetch(`/api/repomind/ingest/status/${success.jobId}`);
+          const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+          const res = await fetch(`${API_BASE}/api/repomind/ingest/status/${success.jobId}`);
           if (res.ok) {
             const data = await res.json();
             setJobStatus(data);

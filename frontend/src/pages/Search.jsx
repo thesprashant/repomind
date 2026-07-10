@@ -17,7 +17,8 @@ const Search = () => {
     setResults([]);
 
     try {
-      const response = await fetch('/api/repomind/search', {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${API_BASE}/api/repomind/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, repo, top_k: 5 }),
